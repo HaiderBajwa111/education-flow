@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Next.js build output
+frontend/.next/
+
+# NestJS build output
+backend/dist/
+backend/build/
+
+
+# Tests
+backend/coverage/
+backend/.nyc_output/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# IDE and OS files
+.DS_Store
+.vscode/
+
+# DO NOT ignore these (Make sure these lines are NOT in your file)
+!.specify/
+!.agent/

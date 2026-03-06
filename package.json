@@ -1,0 +1,26 @@
+{
+  "name": "education-flow",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"docker compose up -d\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "build": "npm run build:types && npm run build:backend && npm run build:frontend",
+    "build:types": "cd backend && npx prisma generate",
+    "build:backend": "cd backend && npm run build",
+    "build:frontend": "cd frontend && npm run build",
+    "db:up": "docker compose up -d",
+    "db:stop": "docker compose stop",
+    "db:down": "docker compose down",
+    "start:prod": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd backend && node dist/main.js",
+    "start:frontend": "cd frontend && npm run start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

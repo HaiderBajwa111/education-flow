@@ -1,0 +1,23 @@
+# education-flow/docker-compose.yml
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: education_flow_db
+    restart: always
+    environment:
+      POSTGRES_USER: dev_user
+      POSTGRES_PASSWORD: dev_password
+      POSTGRES_DB: education_flow
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  # Useful for you and your friends to manage DB visually
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:
