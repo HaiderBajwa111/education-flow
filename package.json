@@ -1,25 +1,24 @@
 {
   "name": "education-flow",
   "version": "1.0.0",
-  "description": "",
+  "description": "Multi-tenant School Management System",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"docker compose up -d\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev": "concurrently \"npm run db:up\" \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "db:up": "docker compose up -d",
+    "db:stop": "docker compose stop",
+    "db:down": "docker compose down",
+    "studio": "cd backend && npx prisma studio",
     "build": "npm run build:types && npm run build:backend && npm run build:frontend",
     "build:types": "cd backend && npx prisma generate",
     "build:backend": "cd backend && npm run build",
     "build:frontend": "cd frontend && npm run build",
-    "db:up": "docker compose up -d",
-    "db:stop": "docker compose stop",
-    "db:down": "docker compose down",
     "start:prod": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
     "start:backend": "cd backend && node dist/main.js",
     "start:frontend": "cd frontend && npm run start"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "devDependencies": {
     "concurrently": "^9.2.1"
   }
