@@ -26,7 +26,7 @@ The backend is a NestJS mono-module app that will be expanded into a fully modul
 | **Testing** | Jest (unit — NestJS), React Testing Library (frontend, Phase 2) |
 | **Target Platform** | Linux server (Docker Compose for local dev) |
 | **Performance Goals** | Student list search < 1s for 2,000 students; list load < 2s |
-| **Constraints** | Zero cross-tenant data leakage; Pakistani field validation on all inputs |
+| **Constraints** | Zero cross-tenant data leakage; Pakistani field validation on all inputs; **ALL schema changes MUST go through Prisma migrations — direct DB edits (psql, Adminer, raw SQL outside migration files) are strictly forbidden with no exceptions** |
 | **Scale/Scope** | Phase 1: 10–100 schools, up to 5,000 students per school |
 
 ---
@@ -39,7 +39,7 @@ The backend is a NestJS mono-module app that will be expanded into a fully modul
 | II. Operational Efficiency | ✅ PASS | Smart defaults (admission date = today), inline validation, paginated lists. |
 | III. Multi-Tenancy by Design | ✅ PASS | Schema-per-tenant; `TenantMiddleware` globally applied; tenant-scoped PrismaClient per request. |
 | IV. Type Safety | ✅ PASS | TypeScript strict mode; shared types in `shared-types/`; no `any`. |
-| V. Migrations Over Direct DB | ✅ PASS | All schema changes via `prisma migrate dev`; partial B-Form index via raw SQL in migration file only. |
+| V. Migrations Over Direct DB | ✅ PASS | **NON-NEGOTIABLE**: Every schema change — including the B-Form partial index — is written inside a Prisma migration SQL file. `schema.prisma` is updated first, then `prisma migrate dev` generates the migration, then the partial index raw SQL is appended to that generated file. No `psql`, no Adminer schema edits, no `prisma db push`, no exceptions. |
 | VI. Pakistani Context Compliance | ✅ PASS | B-Form, CNIC, phone validated in DTOs + Zod schemas; enum values match constitution. |
 | VII. Feature-First Modularity | ✅ PASS | Feature modules: `tenant`, `auth`, `staff`, `academics`, `students`. |
 
