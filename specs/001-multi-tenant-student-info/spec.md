@@ -123,20 +123,20 @@ A new school is registered on the platform. A dedicated school record is created
 
 ### User Story 6 — Staff Account Onboarding (Priority: P1)
 
-When a new school is onboarded, the Principal's account is created first as part of the school registration process. That Principal then logs in and creates Clerk and Teacher accounts from within the system. Each staff account is tied to the school's tenant, assigned a role, and receives login credentials.
+When a new school is onboarded, the Principal's account is created first as part of the school registration process. That Principal then logs in and issues invites to create Clerk and Teacher accounts from within the system. Each staff account is tied to the school's tenant, assigned a role, and receives an invite email to set up their credentials.
 
-**Why this priority**: Without staff accounts, no one can log in or operate the system. The Principal is the first user; all other accounts flow from them.
+**Why this priority**: Without staff accounts, no one can log in or operate the system. The Principal is the first user; all other accounts flow from them via secure invites.
 
-**Independent Test**: Testable by completing the onboarding sequence — Principal account exists after school registration, Principal creates a Clerk account, Clerk can immediately log in and access their permitted features.
+**Independent Test**: Testable by completing the onboarding sequence — Principal account exists after school registration, Principal sends an invite to a Clerk email, Clerk clicks the link, sets their password, and can immediately log in and access their permitted features.
 
 **Acceptance Scenarios**:
 
 1. **Given** a new school is registered on the platform, **When** onboarding completes, **Then** a Principal account is created with login credentials scoped to that school's subdomain.
-2. **Given** a Principal is logged in, **When** they create a new Clerk account (providing name, CNIC, phone, and a temporary password), **Then** the Clerk can immediately log in at the school's subdomain.
-3. **Given** a Principal creates a new Teacher account, **When** the Teacher logs in, **Then** they can access their account but see no students until they are assigned to a class-section through the Academics module.
-4. **Given** a Clerk is logged in, **When** they attempt to create another staff account, **Then** the system rejects it — only Principals can create staff accounts.
-5. **Given** a staff account is created, **When** the new user logs in for the first time, **Then** they are prompted to change their temporary password before accessing any other screen.
-6. **Given** a Principal tries to create a second Principal account for the same school, **When** they submit, **Then** the system allows it — a school may have more than one Principal-role user.
+2. **Given** a Principal is logged in, **When** they invite a new Clerk account (providing name, CNIC, phone, email, and role), **Then** the system sends an email with a secure invite link to the Clerk.
+3. **Given** an invited user clicks their invite link, **When** they complete the setup by choosing a password, **Then** they can log in at the school's subdomain.
+4. **Given** a Principal creates a new Teacher account, **When** the Teacher logs in, **Then** they can access their account but see no students until they are assigned to a class-section through the Academics module.
+5. **Given** a Clerk is logged in, **When** they attempt to create another staff account or send an invite, **Then** the system rejects it — only Principals can invite staff.
+6. **Given** a Principal tries to invite a second Principal account for the same school, **When** they submit, **Then** the system allows it — a school may have more than one Principal-role user.
 
 ---
 
@@ -211,10 +211,10 @@ After a school is onboarded, a Clerk (or Principal) sets up the school's academi
 
 #### Staff Onboarding
 - **FR-027**: System MUST create a Principal account as part of the school onboarding process; no school subdomain can be used without at least one Principal account.
-- **FR-028**: System MUST allow only Principals to create new staff accounts (Clerk or Teacher) within their school.
-- **FR-029**: System MUST require the following fields when creating a staff account: full name, CNIC (`DDDDD-DDDDDDD-D`), phone number (`03xx-xxxxxxx`), and role (Principal / Clerk / Teacher). No class or section assignment is done at account creation time.
-- **FR-030**: System MUST prompt a newly created staff member to change their temporary password on first login before accessing any application screen.
-- **FR-031**: System MUST allow Principals and Clerks to view the full staff list; only Principals may delete a staff account.
+- **FR-028**: System MUST allow only Principals to send invites for new staff accounts (Clerk or Teacher) within their school.
+- **FR-029**: System MUST require the following fields when inviting a staff account: full name, CNIC (`DDDDD-DDDDDDD-D`), phone number (`03xx-xxxxxxx`), mandatory email address, and role (Principal / Clerk / Teacher). No class or section assignment is done at account creation time.
+- **FR-030**: System MUST send a secure, single-use invite link to the provided email address, allowing the invited user to set their password.
+- **FR-031**: System MUST allow Principals and Clerks to view the full staff list; only Principals may delete a staff account or revoke/resend pending invites.
 - **FR-034**: A Teacher account with no class-section assignments yet MUST be a valid state — the system shows an empty student view, not an error. Class-section assignments are managed separately in the Academics module.
 
 #### Subject Configurability
@@ -280,3 +280,21 @@ After a school is onboarded, a Clerk (or Principal) sets up the school's academi
 | Pagination & search | Staff management (captured in Staff Management module) |
 | Staff onboarding (Principal creates Clerk/Teacher accounts) | | 
 | Audit trail (who/when) | |
+
+---
+
+## Environment & Configuration Requirements
+
+To support this module (especially tenant provisioning and the email-based invite system), the following environment variables (or equivalent secrets) MUST be configured in the operating environment:
+
+### Database & Security
+- `DATABASE_URL` — Connection string for the PostgreSQL database (handling multi-tenant schemas).
+- `JWT_SECRET` — Secret key used to sign and verify authentication tokens (must support tenant-based claims).
+
+### Email / SMTP Configuration (for Invites/Password Resets)
+- `SMTP_HOST` — Outer mail server host (e.g., `smtp.sendgrid.net` or `smtp.eu.mailgun.org`).
+- `SMTP_PORT` — Mail server port (e.g., `587` or `465`).
+- `SMTP_USER` — SMTP authentication username.
+- `SMTP_PASSWORD` — SMTP authentication password or API key.
+- `EMAIL_FROM_ADDRESS` — The default sender address for system emails (e.g., `noreply@educationflow.pk`).
+- `FRONTEND_URL` — The base URL of the frontend application (e.g., `https://educationflow.pk`). This is required to construct the dynamic invite activation link (e.g., `https://{tenant}.educationflow.pk/activate?token=...`).
